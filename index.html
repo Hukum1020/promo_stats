@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Статистика гостей</title>
+  <meta charset="UTF-8" />
+  <title>Статистика использования</title>
   <style>
     body {
       font-family: Montserrat, Arial, sans-serif;
@@ -18,28 +18,24 @@
   </style>
 </head>
 <body>
-  <h1>Статистика мероприятия</h1>
-  <div class="stat" id="total">Загрузка...</div>
-  <div class="stat" id="checkin"></div>
-  <div class="stat" id="today"></div>
+  <h1>Использовано промокодов</h1>
+  <div class="stat" id="used">Загрузка...</div>
 
   <script>
-    async function fetchStats() {
+    async function fetchUsed() {
       try {
         const res = await fetch("/stats");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-
-        document.getElementById('total').textContent = `Всего зарегистрировано: ${data.total}`;
-        document.getElementById('checkin').textContent = `Пришли на мероприятие: ${data.checkin}`;
-        document.getElementById('today').textContent = `Зарегистрировались сегодня: ${data.today}`;
+        document.getElementById('used').textContent = `Количество людей: ${data.used}`;
       } catch (err) {
         console.error("Ошибка загрузки:", err);
-        document.getElementById('total').textContent = "Ошибка загрузки";
+        document.getElementById('used').textContent = "Ошибка загрузки";
       }
     }
 
-    fetchStats();
-    setInterval(fetchStats, 60000); // обновление каждую минуту
+    fetchUsed();
+    setInterval(fetchUsed, 60000); // обновление каждую минуту
   </script>
 </body>
 </html>
