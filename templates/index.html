@@ -47,7 +47,7 @@
 </head>
 <body>
   <main>
-    <h1>Использовано промокодов</h1>
+    
     <div class="stat" id="used">Загрузка...</div>
   </main>
 
@@ -57,7 +57,7 @@
         const res = await fetch("/stats");
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        document.getElementById('used').textContent = `Количество людей: ${data.used}`;
+        document.getElementById('used').textContent = `Отправлено промокодов: ${data.used}`;
       } catch (err) {
         console.error("Ошибка загрузки:", err);
         document.getElementById('used').textContent = "Ошибка загрузки данных";
