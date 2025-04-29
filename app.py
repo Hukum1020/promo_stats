@@ -3,9 +3,6 @@ import json
 from flask import Flask, jsonify, render_template
 from googleapiclient.discovery import build
 from google.oauth2.service_account import Credentials
-from datetime import datetime
-from dateutil import parser
-from zoneinfo import ZoneInfo  # встроенный модуль в Python 3.9+
 
 app = Flask(__name__)
 
@@ -30,50 +27,36 @@ def index():
 
 @app.route('/stats')
 def get_stats():
+    # Поднимаем сервис Google Sheets
     service = build('sheets', 'v4', credentials=creds)
     sheet = service.spreadsheets()
-    result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range='A1:L').execute()
+    # Читаем все данные от A до Z
+    result = sheet.values().get(
+        spreadsheetId=SPREADSHEET_ID,
+        range='A1:Z'
+    ).execute()
     values = result.get('values', [])
 
+    # Если нет данных или только заголовок — возвращаем 0
     if not values or len(values) < 2:
-        return jsonify({'total': 0, 'checkin': 0, 'today': 0})
+        return jsonify({'used': 0})
 
     headers = values[0]
     rows = values[1:]
 
+    # Находим индекс столбца "Used"
     try:
-        checkin_index = headers.index("CheckIn")
-        sent_index = headers.index("sent")
+        used_index = headers.index("Used")
     except ValueError:
-        return jsonify({'error': 'Required columns not found'})
+        return jsonify({'error': 'Column "Used" not found'}), 400
 
-    total = len(rows)
-    checkin_count = sum(1 for row in rows if len(row) > checkin_index and row[checkin_index].strip())
+    # Считаем непустые значения в этом столбце
+    used_count = sum(
+        1 for row in rows
+        if len(row) > used_index and row[used_index].strip()
+    )
 
-    # Часовые пояса
-    almaty_tz = ZoneInfo("Asia/Almaty")
-    moscow_tz = ZoneInfo("Europe/Moscow")
-
-    now_almaty = datetime.now(almaty_tz)
-
-    today_count = 0
-    for row in rows:
-        if len(row) > sent_index:
-            try:
-                sent_dt = parser.parse(row[sent_index])
-                if sent_dt.tzinfo is None:
-                    sent_dt = sent_dt.replace(tzinfo=moscow_tz)
-                sent_dt_almaty = sent_dt.astimezone(almaty_tz)
-                if sent_dt_almaty.date() == now_almaty.date():
-                    today_count += 1
-            except Exception:
-                continue
-
-    return jsonify({
-        'total': total,
-        'checkin': checkin_count,
-        'today': today_count
-    })
+    return jsonify({'used': used_count})
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
