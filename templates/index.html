@@ -1,25 +1,55 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Статистика использования</title>
   <style>
-    body {
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
       font-family: Montserrat, Arial, sans-serif;
       background: linear-gradient(to bottom, #3E5990, #936D56);
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-attachment: fixed;
       color: white;
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    main {
       padding: 2em;
     }
+
+    h1 {
+      margin-top: 0;
+      font-size: 6vw; /* адаптивный размер */
+    }
+
     .stat {
-      font-size: 1.5em;
+      font-size: 5vw; /* тоже адаптивный */
       margin: 1em 0;
+    }
+
+    @media (min-width: 768px) {
+      h1 {
+        font-size: 2.5em;
+      }
+      .stat {
+        font-size: 1.8em;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Использовано промокодов</h1>
-  <div class="stat" id="used">Загрузка...</div>
+  <main>
+    <h1>Использовано промокодов</h1>
+    <div class="stat" id="used">Загрузка...</div>
+  </main>
 
   <script>
     async function fetchUsed() {
@@ -30,12 +60,12 @@
         document.getElementById('used').textContent = `Количество людей: ${data.used}`;
       } catch (err) {
         console.error("Ошибка загрузки:", err);
-        document.getElementById('used').textContent = "Ошибка загрузки";
+        document.getElementById('used').textContent = "Ошибка загрузки данных";
       }
     }
 
     fetchUsed();
-    setInterval(fetchUsed, 60000); // обновление каждую минуту
+    setInterval(fetchUsed, 10000); // обновление каждые 10 секунд
   </script>
 </body>
 </html>
